@@ -40,6 +40,7 @@ const AutosizeInput = React.createClass({
 		this.updateInputWidth();
 	},
 	componentDidUpdate () {
+		this.updateInputWidth();
 		this.queueUpdateInputWidth();
 	},
 	copyInputStyles () {
