@@ -19,7 +19,8 @@
     "react": "^0.14.0",
     "react-dom": "^0.14.0",
     "react-addons-test-utils": "^0.14.0",
-    "react-component-gulp-tasks": "^0.7.6"
+    "react-component-gulp-tasks": "^0.7.6",
+    "prop-types": "^15.7.2"
   },
   "peerDependencies": {
     "react": "^0.14.0"

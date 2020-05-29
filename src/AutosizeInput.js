@@ -1,49 +1,53 @@
-const React = require('react');
+const React = require("react");
+const PropTypes = require("prop-types");
 
-const sizerStyle = { position: 'absolute', visibility: 'hidden', height: 0, width: 0, overflow: 'scroll', whiteSpace: 'nowrap' };
+const sizerStyle = {
+	position: "absolute",
+	visibility: "hidden",
+	height: 0,
+	width: 0,
+	overflow: "scroll",
+	whiteSpace: "nowrap",
+};
 
-const nextFrame = typeof window !== 'undefined' ? (function(){
-	return window.requestAnimationFrame
-		|| window.webkitRequestAnimationFrame
-		|| window.mozRequestAnimationFrame
-		|| function (callback) {
-			window.setTimeout(callback, 1000 / 60);
-		};
-})().bind(window) : undefined; // If window is undefined, then we can't define a nextFrame function
+const nextFrame =
+	typeof window !== "undefined"
+		? (function () {
+				return (
+					window.requestAnimationFrame ||
+					window.webkitRequestAnimationFrame ||
+					window.mozRequestAnimationFrame ||
+					function (callback) {
+						window.setTimeout(callback, 1000 / 60);
+					}
+				);
+		  })().bind(window)
+		: undefined; // If window is undefined, then we can't define a nextFrame function
 
-const AutosizeInput = React.createClass({
-	propTypes: {
-		value: React.PropTypes.any,                 // field value
-		defaultValue: React.PropTypes.any,          // default field value
-		onChange: React.PropTypes.func,             // onChange handler: function(newValue) {}
-		style: React.PropTypes.object,              // css styles for the outer element
-		className: React.PropTypes.string,          // className for the outer element
-		minWidth: React.PropTypes.oneOfType([       // minimum width for input element
-			React.PropTypes.number,
-			React.PropTypes.string
-		]),
-		inputStyle: React.PropTypes.object,         // css styles for the input element
-		inputClassName: React.PropTypes.string      // className for the input element
-	},
-	getDefaultProps () {
-		return {
-			minWidth: 1
+class AutosizeInput extends React.Component {
+	constructor(props) {
+		super(props);
+		this.copyInputStyles = this.copyInputStyles.bind(this);
+		this.queueUpdateInputWidth = this.queueUpdateInputWidth.bind(this);
+		this.updateInputWidth = this.updateInputWidth.bind(this);
+		this.getInput = this.getInput.bind(this);
+		this.focus = this.focus.bind(this);
+		this.blur = this.blur.bind(this);
+		this.select = this.select.bind(this);
+		this.state = {
+			inputWidth: this.props.minWidth,
 		};
-	},
-	getInitialState () {
-		return {
-			inputWidth: this.props.minWidth
-		};
-	},
-	componentDidMount () {
+	}
+
+	componentDidMount() {
 		this.copyInputStyles();
 		this.updateInputWidth();
-	},
-	componentDidUpdate () {
+	}
+	componentDidUpdate() {
 		this.updateInputWidth();
 		this.queueUpdateInputWidth();
-	},
-	copyInputStyles () {
+	}
+	copyInputStyles() {
 		if (!this.isMounted() || !window.getComputedStyle) {
 			return;
 		}
@@ -62,17 +66,24 @@ const AutosizeInput = React.createClass({
 			placeholderNode.style.fontStyle = inputStyle.fontStyle;
 			placeholderNode.style.letterSpacing = inputStyle.letterSpacing;
 		}
-	},
-	queueUpdateInputWidth () {
+	}
+	queueUpdateInputWidth() {
 		nextFrame(this.updateInputWidth);
-	},
-	updateInputWidth () {
-		if (!this.isMounted() || typeof this.refs.sizer.scrollWidth === 'undefined') {
+	}
+	updateInputWidth() {
+		if (
+			!this.isMounted() ||
+			typeof this.refs.sizer.scrollWidth === "undefined"
+		) {
 			return;
 		}
 		let newInputWidth;
 		if (this.props.placeholder) {
-			newInputWidth = Math.max(this.refs.sizer.scrollWidth, this.refs.placeholderSizer.scrollWidth) + 2;
+			newInputWidth =
+				Math.max(
+					this.refs.sizer.scrollWidth,
+					this.refs.placeholderSizer.scrollWidth
+				) + 2;
 		} else {
 			newInputWidth = this.refs.sizer.scrollWidth + 2;
 		}
@@ -81,38 +92,73 @@ const AutosizeInput = React.createClass({
 		}
 		if (newInputWidth !== this.state.inputWidth) {
 			this.setState({
-				inputWidth: newInputWidth
+				inputWidth: newInputWidth,
 			});
 		}
-	},
-	getInput () {
+	}
+	getInput() {
 		return this.refs.input;
-	},
-	focus () {
+	}
+	focus() {
 		this.refs.input.focus();
-	},
-	blur () {
+	}
+	blur() {
 		this.refs.input.blur();
-	},
-	select () {
+	}
+	select() {
 		this.refs.input.select();
-	},
-	render () {
-		const escapedValue = (this.props.defaultValue || this.props.value || '').replace(/\&/g, '&amp;').replace(/ /g, '&nbsp;').replace(/\</g, '&lt;').replace(/\>/g, '&gt;');
+	}
+	render() {
+		const escapedValue = (this.props.defaultValue || this.props.value || "")
+			.replace(/\&/g, "&amp;")
+			.replace(/ /g, "&nbsp;")
+			.replace(/\</g, "&lt;")
+			.replace(/\>/g, "&gt;");
 		const wrapperStyle = this.props.style || {};
-		if (!wrapperStyle.display) wrapperStyle.display = 'inline-block';
+		if (!wrapperStyle.display) wrapperStyle.display = "inline-block";
 		const inputStyle = Object.assign({}, this.props.inputStyle);
 		inputStyle.width = this.state.inputWidth;
-		inputStyle.boxSizing = 'content-box';
-		const placeholder = this.props.placeholder ? <div ref="placeholderSizer" style={sizerStyle}>{this.props.placeholder}</div> : null;
+		inputStyle.boxSizing = "content-box";
+		const placeholder = this.props.placeholder ? (
+			<div ref="placeholderSizer" style={sizerStyle}>
+				{this.props.placeholder}
+			</div>
+		) : null;
 		return (
 			<div className={this.props.className} style={wrapperStyle}>
-				<input {...this.props} ref="input" className={this.props.inputClassName} style={inputStyle} />
-				<div ref="sizer" style={sizerStyle} dangerouslySetInnerHTML={{ __html: escapedValue }} />
+				<input
+					{...this.props}
+					ref="input"
+					className={this.props.inputClassName}
+					style={inputStyle}
+				/>
+				<div
+					ref="sizer"
+					style={sizerStyle}
+					dangerouslySetInnerHTML={{ __html: escapedValue }}
+				/>
 				{placeholder}
 			</div>
 		);
 	}
-});
+}
+
+AutosizeInput.propTypes = {
+	value: PropTypes.any, // field value
+	defaultValue: PropTypes.any, // default field value
+	onChange: PropTypes.func, // onChange handler: function(newValue) {}
+	style: PropTypes.object, // css styles for the outer element
+	className: PropTypes.string, // className for the outer element
+	minWidth: PropTypes.oneOfType([
+		// minimum width for input element
+		PropTypes.number,
+		PropTypes.string,
+	]),
+	inputStyle: PropTypes.object, // css styles for the input element
+	inputClassName: PropTypes.string, // className for the input element
+};
+AutosizeInput.defaultProps = {
+	minWidth: 1,
+};
 
 module.exports = AutosizeInput;
