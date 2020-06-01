@@ -40,15 +40,17 @@ class AutosizeInput extends React.Component {
 	}
 
 	componentDidMount() {
+		this._mounted = true;
 		this.copyInputStyles();
 		this.updateInputWidth();
 	}
 	componentDidUpdate() {
+		this._mounted = false;
 		this.updateInputWidth();
 		this.queueUpdateInputWidth();
 	}
 	copyInputStyles() {
-		if (!this.isMounted() || !window.getComputedStyle) {
+		if (!this._mounted || !window.getComputedStyle) {
 			return;
 		}
 		const inputStyle = window.getComputedStyle(this.refs.input);
@@ -71,10 +73,7 @@ class AutosizeInput extends React.Component {
 		nextFrame(this.updateInputWidth);
 	}
 	updateInputWidth() {
-		if (
-			!this.isMounted() ||
-			typeof this.refs.sizer.scrollWidth === "undefined"
-		) {
+		if (!this._mounted || typeof this.refs.sizer.scrollWidth === "undefined") {
 			return;
 		}
 		let newInputWidth;

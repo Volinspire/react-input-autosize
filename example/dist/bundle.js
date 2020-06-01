@@ -1340,19 +1340,21 @@ var AutosizeInput = (function (_React$Component) {
 	_createClass(AutosizeInput, [{
 		key: "componentDidMount",
 		value: function componentDidMount() {
+			this._mounted = true;
 			this.copyInputStyles();
 			this.updateInputWidth();
 		}
 	}, {
 		key: "componentDidUpdate",
 		value: function componentDidUpdate() {
+			this._mounted = false;
 			this.updateInputWidth();
 			this.queueUpdateInputWidth();
 		}
 	}, {
 		key: "copyInputStyles",
 		value: function copyInputStyles() {
-			if (!this.isMounted() || !window.getComputedStyle) {
+			if (!this._mounted || !window.getComputedStyle) {
 				return;
 			}
 			var inputStyle = window.getComputedStyle(this.refs.input);
@@ -1379,7 +1381,7 @@ var AutosizeInput = (function (_React$Component) {
 	}, {
 		key: "updateInputWidth",
 		value: function updateInputWidth() {
-			if (!this.isMounted() || typeof this.refs.sizer.scrollWidth === "undefined") {
+			if (!this._mounted || typeof this.refs.sizer.scrollWidth === "undefined") {
 				return;
 			}
 			var newInputWidth = undefined;
